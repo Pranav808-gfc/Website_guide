@@ -1,0 +1,5 @@
+flask
+langchain
+langchain_core
+langchain_community
+dotenv
