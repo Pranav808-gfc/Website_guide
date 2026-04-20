@@ -3,6 +3,7 @@ from flask.views import F
 from pymongo import MongoClient
 from sqlalchemy import Result
 from config import MONGO_URI
+from Retriver_model import model
 
 app = Flask(__name__)
 
