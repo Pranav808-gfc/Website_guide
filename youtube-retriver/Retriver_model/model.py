@@ -11,6 +11,7 @@ from langchain_core.output_parsers import StrOutputParser
 from pyparsing import ParserElement
 from torch import embedding
 from langchain_core.runnables import RunnablePassthrough
+from langchain_community.document_loaders import WebBaseLoader
 
 load_dotenv()
 
@@ -20,7 +21,7 @@ llm=ChatGroq(
 )
 
 prompt=PromptTemplate(
-    template="Preapre 200 words of resposnse for the{query}from given {docs}",
+    template="Preapre 200 words of resposnse for the{query}from given {docs} only refere the data fom document dont provide other information ",
     input_variables=["query","docs"]
 )
 
@@ -28,44 +29,45 @@ parser=StrOutputParser()
 
 embedding_model=HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
-documents_loader=PyPDFLoader("../Documents/kebo105.pdf")
-documents=documents_loader.load()
+def load_data(url):
+    documents_loader=WebBaseLoader(url)
+    documents=documents_loader.load()
+    return documents
 
-#for x in documents:
- #   print("**********************************************************************************")
-  #  print(x.page_content)
-
-splitter=RecursiveCharacterTextSplitter(
+def get_chunks(documents):
+    splitter=RecursiveCharacterTextSplitter(
     chunk_size=500,
     chunk_overlap=100
-)
+    )
+    chunks=splitter.split_text(documents)
+    return chunks
 
-chunks=splitter.split_documents(documents)
-#for x in chunks:
- #   print(x)
- #   print("****************************************************************************")
-
-#print(len(chunks))
-vs=Chroma(
-    #we can add documents directs here 
-    #documents=chunks
+def get_retirver(chunks):
+    vs=Chroma(
     embedding_function=embedding_model,
-    persist_directory="Mypdf",
-    collection_name="flowers"
-)
-vs.add_documents(chunks)
-#result=vs.get(include=["embeddings",'documents','metadatas'])
-#for x in result:
-#    print(result)
-#    print("***************************************************")
-
-retriver=vs.as_retriever(
+    persist_directory="MyWebdata",
+    collection_name="webdata"
+    )
+    vs.add_documents(chunks)
+    retriver=vs.as_retriever(
     search_type="mmr",
     search_kwargs={"k":2,"lambda_mult":1})
-query="Parts of flowers "
-#result=retriver.invoke(query)
-#for i,x in enumerate(result):
-   # print(f"******************result{i+1}********************")
-    #print(x.page_content) 
+    return retriver
 
-chain=retriver|parser|prompt|llm|parser
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+def get_answer(query,url):
+    documents=load_data(url)
+    chunks=get_chunks(documents)
+    retriver=get_retirver(chunks)
+    chain = (
+    {
+        "docs": retriver | format_docs,
+        "query": RunnablePassthrough()
+    }| prompt
+    | llm
+    | parser
+    )
+    result=chain.invoke(query)
+    return result
