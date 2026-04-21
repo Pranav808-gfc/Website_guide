@@ -3,24 +3,22 @@
         <title>
             youtube bot
         </title>
-        <center><H1>Hello Everyone this is youtube bot!</H1></center>
+        <center><H1>Hello Everyone this is Wesite guide!</H1></center>
         <marquee direction="left" scrollamount="5" style="background-color: cornflowerblue; padding:10px">
             Here you can paste the video link and ask any queries that you want to verify before watching the youtue video
         </marquee>
             <link rel="stylesheet" href="{{ url_for('static', filename='Style.css') }}">
     </head>
     <body>
-        
-            
         <form method="POST">
             <textarea class="URLarea" placeholder="Paste your youtube URL" name="URL"></textarea></br>
-            <button type="submit" class="submit" onclick="home()" >Submit</button></br>
-        {% if show_textarea%}
+            <button type="submit" class="submit" name="Submit" >Submit</button></br>
+        {% if show_textarea %}
             <div class="textarea-wrapper ">
-                <textarea class="chat-textarea " name="question" class="question" placeholder="Write Your Question....">{{info}} </textarea>
-            <button type="submit" class="send-btn">➤</button>
+                <textarea class="chat-textarea " name="question" class="question" placeholder="Write Your Question...."></textarea>
+            <button type="submit" class="send-btn" name="get_answer">➤</button>
             </div>
-            <textarea class="chat-answer" name="Answer" class="answer" placeholder="Your answer is here...."></textarea>
+            <textarea class="chat-answer" name="Answer" class="answer" placeholder="Your answer is here....">{{answer}}</textarea>
         {% endif %}
         </form> 
     </body>
