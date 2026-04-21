@@ -3,7 +3,7 @@ from flask.views import F
 from pymongo import MongoClient
 from sqlalchemy import Result
 from config import MONGO_URI
-from Retriver_model import model
+from Retriver_model.model import get_answer
 
 app = Flask(__name__)
 
@@ -20,14 +20,14 @@ def home():
             show_textarea=True
         if "get_answer" in request.form:
             show_textarea=True
-            answer=get_answer()
-        
+            answer=call_llm()
     return render_template("mainpage.html",show_textarea=show_textarea,answer=answer)
 
-def get_answer():
+def call_llm():
     if request.method=="POST":
          Question= request.form.get("question")
-         answer="I Love you"
+         url=request.form.get("URL")
+         answer=get_answer(Question,url)
     return answer
 
 if __name__ == "__main__":
