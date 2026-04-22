@@ -30,5 +30,8 @@ def call_llm():
          answer=get_answer(Question,url)
     return answer
 
+def demo():
+    return "i have you"
+
 if __name__ == "__main__":
     app.run(debug=True)
